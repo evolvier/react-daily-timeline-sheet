@@ -15,6 +15,7 @@ interface Segment {
   widthPercent: number;
   tooltip: string;
   status?: string;
+  data?: any;
 }
 
 interface WorkingHour {
@@ -22,6 +23,7 @@ interface WorkingHour {
   end: string;
   title: string;
   status?: string;
+  data?: any;
 }
 
 interface TimeLineProps {
@@ -34,6 +36,7 @@ interface TimeLineProps {
   timeFormat?: "12h" | "24h";
   notWorkingCaption?: string;
   renderTooltip?: (segment: Segment) => React.ReactNode;
+  onClick?: (segment: Segment) => void;
 }
 
 const TimeLine = ({
@@ -46,6 +49,7 @@ const TimeLine = ({
   timeFormat = "12h",
   notWorkingCaption = "Not working at this time ",
   renderTooltip,
+  onClick,
 }: TimeLineProps) => {
   const allSegments: Segment[] = [];
   let previousEnd = 0;
@@ -93,6 +97,7 @@ const TimeLine = ({
           type: "non-working",
           startPercent: previousEnd,
           widthPercent: startPercent - previousEnd,
+          // data: shift.data ? shift.data : undefined,
           tooltip: `${notWorkingCaption} (${formatDuration(
             nonWorkingDuration
           )})`,
@@ -104,6 +109,7 @@ const TimeLine = ({
         status: shift.status,
         startPercent,
         widthPercent,
+        data: shift.data ? shift.data : undefined,
         tooltip: `${formatTime(shift.start, timeFormat)} - ${formatTime(
           shift.end,
           timeFormat
@@ -152,9 +158,10 @@ const TimeLine = ({
               width: `${segment.widthPercent}%`,
               backgroundColor:
                 segment.type === "working" ? workingColor : "transparent",
-                zIndex: segment.type === "working" ? 10 : "auto",
+              zIndex: segment.type === "working" ? 10 : "auto",
             }}
             data-tooltip={segment.tooltip}
+            onClick={() => onClick && onClick(segment)}
           >
             {renderTooltip ? (
               <div className="tooltip">{renderTooltip(segment)}</div>
